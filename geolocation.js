@@ -2,6 +2,11 @@ var objGeolocation = {
     googleApiKey: '',
     lat: '',
     lng: '',
+    action(country,state){
+        if(country.toLowerCase() == 'us'){
+            document.getElementById('freeShippingLimit').className += 'hidden';
+        }
+    },
     getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(objGeolocation.resHandler, objGeolocation.handelError)
@@ -9,10 +14,19 @@ var objGeolocation = {
             console.log('Geolocation is not supported by this browser');
         }
     },
+    resHandler(position){
+        this.lat = position.coords.latitude;
+        this.lng = position.coords.longitude;
+        var url = this.setGoogleApiURL(this.lat, this.lng);
+        var jsonResult = this.reqGoogleApi(url);
+        var objResult = JSON.parse(jsonResult);
+        var
+    },
     setGoogleApiURL(lat, lng) {
         var eleGooglApi = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat + ',' + lng;
         if (this.googleApiKey != '')
         { eleGooglApi += '&key=' + this.googleApiKey; }
+        return eleGooglApi;
     },
     reqGoogleApi(url) {
         var xhttp
@@ -30,11 +44,17 @@ var objGeolocation = {
         xhttp.send();
 
     },
-    getCountry(position) {
-
+    getCountryShort(obj) {
+        return obj.result[0].address_components[6].short_name;
     },
-    getState(position) {
-
+    getCountryLong(obj) {
+        return obj.result[0].address_components[6].long_name;
+    },
+    getStateShort(obj) {
+        return obj.result[0].address_components[5].short_name;
+    },
+    getStateLong(obj) {
+        return obj.result[0].address_components[5].long_name;
     },
     handelError(error) {
         switch (error.code) {
